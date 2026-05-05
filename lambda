@@ -1,0 +1,43 @@
+import boto3
+import json
+
+REGION = "us-gov-west-1"
+RUNTIME = "python3.14"
+
+lambda_client = boto3.client("lambda", region_name=REGION)
+
+def update_all_lambdas():
+    paginator = lambda_client.get_paginator("list_functions")
+
+    for page in paginator.paginate():
+        for fn in page["Functions"]:
+            if fn["Runtime"] == "python3.11":
+                name = fn["FunctionName"]
+                print(f"Updating {name} -> {RUNTIME}")
+
+                lambda_client.update_function_configuration(
+                    FunctionName=name,
+                    Runtime=RUNTIME
+                )
+
+                waiter = lambda_client.get_waiter("function_updated")
+                waiter.wait(FunctionName=name)
+
+                print(f"Updated: {name}")
+
+def test_invoke(function_name):
+    response = lambda_client.invoke(
+        FunctionName=function_name,
+        InvocationType="RequestResponse",
+        Payload=json.dumps({}).encode("utf-8")
+    )
+
+    print(f"Invoke response for {function_name}:")
+    print(response["Payload"].read().decode())
+
+if __name__ == "__main__":
+    update_all_lambdas()
+
+    # OPTIONAL: test one lambda after update
+    # replace with actual name
+    test_invoke("YOUR_LAMBDA_NAME")
