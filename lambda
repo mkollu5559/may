@@ -1,43 +1,36 @@
 import boto3
-import json
 
-REGION = "us-gov-west-1"
-RUNTIME = "python3.14"
+TARGET_RUNTIME = "python3.14"
 
-lambda_client = boto3.client("lambda", region_name=REGION)
+def lambda_handler(event, context):
+    regions = event.get("regions", ["us-gov-east-1", "us-gov-west-1"])
 
-def update_all_lambdas():
-    paginator = lambda_client.get_paginator("list_functions")
+    updated = []
 
-    for page in paginator.paginate():
-        for fn in page["Functions"]:
-            if fn["Runtime"] == "python3.11":
-                name = fn["FunctionName"]
-                print(f"Updating {name} -> {RUNTIME}")
+    for region in regions:
+        client = boto3.client("lambda", region_name=region)
+        paginator = client.get_paginator("list_functions")
 
-                lambda_client.update_function_configuration(
-                    FunctionName=name,
-                    Runtime=RUNTIME
-                )
+        for page in paginator.paginate():
+            for fn in page["Functions"]:
+                if fn.get("Runtime") == "python3.11":
+                    name = fn["FunctionName"]
 
-                waiter = lambda_client.get_waiter("function_updated")
-                waiter.wait(FunctionName=name)
+                    client.update_function_configuration(
+                        FunctionName=name,
+                        Runtime=TARGET_RUNTIME
+                    )
 
-                print(f"Updated: {name}")
+                    client.get_waiter("function_updated").wait(
+                        FunctionName=name
+                    )
 
-def test_invoke(function_name):
-    response = lambda_client.invoke(
-        FunctionName=function_name,
-        InvocationType="RequestResponse",
-        Payload=json.dumps({}).encode("utf-8")
-    )
+                    updated.append({
+                        "region": region,
+                        "function": name
+                    })
 
-    print(f"Invoke response for {function_name}:")
-    print(response["Payload"].read().decode())
-
-if __name__ == "__main__":
-    update_all_lambdas()
-
-    # OPTIONAL: test one lambda after update
-    # replace with actual name
-    test_invoke("YOUR_LAMBDA_NAME")
+    return {
+        "updated_count": len(updated),
+        "updated": updated
+    }
