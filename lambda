@@ -13,10 +13,14 @@ def lambda_handler(event, context):
         target_bucket = os.environ["Target_Bucket"].strip()
         target_prefix = os.environ["Target_Prefix"].strip().rstrip("/") + "/"
 
-        archive_prefix = os.environ.get("ARCHIVE_PREFIX", "").strip().rstrip("/")
+        archive_prefix = (
+            os.environ.get("Archive_Prefix")
+            or os.environ.get("ARCHIVE_PREFIX")
+            or ""
+        ).strip().rstrip("/")
+
         archive_enabled = bool(archive_prefix)
 
-        # Always skip source archive folder even when archive disabled
         source_archive_prefix = source_prefix + "archive/"
 
         if archive_enabled:
@@ -56,11 +60,9 @@ def lambda_handler(event, context):
             for obj in page.get("Contents", []):
                 key = obj["Key"]
 
-                # Skip folder markers
                 if key.endswith("/"):
                     continue
 
-                # Skip anything already inside source archive folder
                 if key.startswith(source_archive_prefix):
                     print(f"Skipping archive file: {source_bucket}/{key}")
                     continue
