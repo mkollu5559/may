@@ -1,0 +1,14 @@
+1. File placed in source S3 path:
+    eso-hr-curated-uat-us-gov-west-1/restricted_rpt_srvr/wd_parking/
+2. Lambda nis_s3_pull_ext_uat_rs_parking_eso runs on schedule (every 20 minutes).
+3. Lambda scans (polls) the source bucket/prefix for new files.
+4. If file found → Lambda pulls the file from source S3.
+5. Lambda copies file to external SFTP outbox:
+    adt-nit-nis-dev-ext-west-sftp/sftp_user_west_eso_workday/outbox/INT060/
+6. After successful transfer → Lambda copies same file to archive:
+    eso-hr-curated-uat-us-gov-west-1/restricted_rpt_srvr/wd_parking/Archive/
+7. After archive success → Lambda deletes original file from source path.
+8. Final state:
+    * File available in SFTP outbox for ESO Workday Payroll
+    * File stored in Archive folder
+    * Source folder cleaned up
