@@ -1,36 +1,149 @@
 import boto3
+import os
+import json
 
-TARGET_RUNTIME = "python3.14"
+s3_client = boto3.client("s3")
+
 
 def lambda_handler(event, context):
-    regions = event.get("regions", ["us-gov-east-1", "us-gov-west-1"])
+    try:
+        source_bucket = os.environ["Source_Bucket"].strip()
+        source_prefix = os.environ["Source_Prefix"].strip().rstrip("/") + "/"
 
-    updated = []
+        target_bucket = os.environ["Target_Bucket"].strip()
+        target_prefix = os.environ["Target_Prefix"].strip().rstrip("/") + "/"
 
-    for region in regions:
-        client = boto3.client("lambda", region_name=region)
-        paginator = client.get_paginator("list_functions")
+        archive_prefix = os.environ.get("ARCHIVE_PREFIX", "").strip().rstrip("/")
+        archive_enabled = bool(archive_prefix)
 
-        for page in paginator.paginate():
-            for fn in page["Functions"]:
-                if fn.get("Runtime") == "python3.11":
-                    name = fn["FunctionName"]
+        # Always skip source archive folder even when archive disabled
+        source_archive_prefix = source_prefix + "archive/"
 
-                    client.update_function_configuration(
-                        FunctionName=name,
-                        Runtime=TARGET_RUNTIME
+        if archive_enabled:
+            archive_prefix = archive_prefix + "/"
+            print(f"Archive enabled. Files will be moved to: {archive_prefix}")
+        else:
+            print("Archive not configured. Files will be deleted after copying.")
+
+    except KeyError as e:
+        error_msg = f"Missing required environment variable: {str(e)}"
+        print(error_msg)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": error_msg})
+        }
+
+    if not all([source_bucket, source_prefix, target_bucket, target_prefix]):
+        error_msg = "One or more required environment variables are empty"
+        print(error_msg)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": error_msg})
+        }
+
+    processed_count = 0
+    archived_count = 0
+    deleted_count = 0
+    errors = []
+
+    try:
+        paginator = s3_client.get_paginator("list_objects_v2")
+
+        for page in paginator.paginate(
+            Bucket=source_bucket,
+            Prefix=source_prefix
+        ):
+            for obj in page.get("Contents", []):
+                key = obj["Key"]
+
+                # Skip folder markers
+                if key.endswith("/"):
+                    continue
+
+                # Skip anything already inside source archive folder
+                if key.startswith(source_archive_prefix):
+                    print(f"Skipping archive file: {source_bucket}/{key}")
+                    continue
+
+                file_name = os.path.basename(key)
+                target_key = target_prefix + file_name
+
+                try:
+                    copy_source = {
+                        "Bucket": source_bucket,
+                        "Key": key
+                    }
+
+                    print(f"Copying {source_bucket}/{key} to {target_bucket}/{target_key}")
+
+                    s3_client.copy_object(
+                        CopySource=copy_source,
+                        Bucket=target_bucket,
+                        Key=target_key
                     )
 
-                    client.get_waiter("function_updated").wait(
-                        FunctionName=name
+                    if archive_enabled:
+                        archive_key = archive_prefix + file_name
+
+                        print(f"Archiving {source_bucket}/{key} to {source_bucket}/{archive_key}")
+
+                        s3_client.copy_object(
+                            CopySource=copy_source,
+                            Bucket=source_bucket,
+                            Key=archive_key
+                        )
+
+                        archived_count += 1
+                    else:
+                        print(f"Archive not enabled. Deleting {source_bucket}/{key}")
+
+                    s3_client.delete_object(
+                        Bucket=source_bucket,
+                        Key=key
                     )
 
-                    updated.append({
-                        "region": region,
-                        "function": name
-                    })
+                    deleted_count += 1
+                    processed_count += 1
 
-    return {
-        "updated_count": len(updated),
-        "updated": updated
-    }
+                except Exception as e:
+                    error_msg = f"Error processing file {file_name}: {str(e)}"
+                    print(error_msg)
+                    errors.append(error_msg)
+
+        if processed_count == 0:
+            message = "No files found to process"
+        else:
+            message = f"Successfully processed {processed_count} files"
+
+            if archive_enabled:
+                message += f" ({archived_count} archived, {deleted_count} deleted)"
+            else:
+                message += f" ({deleted_count} deleted without archiving)"
+
+        if errors:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({
+                    "message": message,
+                    "archived": archived_count if archive_enabled else None,
+                    "deleted": deleted_count,
+                    "errors": errors
+                })
+            }
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps({
+                "message": message,
+                "archived": archived_count if archive_enabled else None,
+                "deleted": deleted_count
+            })
+        }
+
+    except Exception as e:
+        error_msg = f"Error listing objects in source bucket: {str(e)}"
+        print(error_msg)
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": error_msg})
+        }
