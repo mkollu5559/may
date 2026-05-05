@@ -1,0 +1,26 @@
+import boto3
+
+TARGET_RUNTIME = "python3.11"
+
+def lambda_handler(event, context):
+    regions = event.get("regions", ["us-gov-east-1", "us-gov-west-1"])
+
+    results = []
+
+    for region in regions:
+        client = boto3.client("lambda", region_name=region)
+        paginator = client.get_paginator("list_functions")
+
+        for page in paginator.paginate():
+            for fn in page["Functions"]:
+                if fn.get("Runtime") == TARGET_RUNTIME:
+                    results.append({
+                        "region": region,
+                        "function": fn["FunctionName"],
+                        "runtime": fn["Runtime"]
+                    })
+
+    return {
+        "count": len(results),
+        "functions": results
+    }
