@@ -1,70 +1,35 @@
 Technical Skills & Capability Overview
-Cloud & Infrastructure
 
-Extensive experience designing and managing scalable cloud solutions across AWS and Azure, with strong hands-on exposure to a wide range of services.
+Experienced Cloud & DevOps Engineer with strong hands-on expertise across AWS, Azure, infrastructure automation, CI/CD, and cloud operations.
 
-AWS: EC2, S3, VPC, Route53, Lambda, ECS Fargate, ECR, ALB/NLB, Glue, DynamoDB, RDS, IAM
-Azure: Broad experience across core and advanced services including VMs, Virtual Networks, Active Directory, ExpressRoute, Logic Apps, Functions, Storage, Service Bus, and enterprise integrations
-Proven experience in multi-cloud architecture, migration, and hybrid cloud environments
-DevOps & Infrastructure as Code (IaC)
+Core Skills
 
-Strong expertise in infrastructure automation and environment standardization:
+* AWS & Azure cloud infrastructure and automation
+* Terraform, Ansible, CloudFormation, Packer
+* GitLab CI/CD, Jenkins, Git workflows
+* Docker, Kubernetes, AWS ECS Fargate
+* Python, Bash, PowerShell, Groovy scripting
+* Linux & Windows administration
+* IAM, Secrets Manager, security and access management
+* Networking: VPC/VNet, TCP/IP, load balancing
 
-Terraform (modular, multi-region deployments)
-Ansible (configuration management & automation)
-CloudFormation
-Packer (AMI/image builds)
-Blue-Green deployments for zero-downtime releases
-CI/CD & Automation
-GitLab CI/CD, Jenkins pipeline design and optimization
-Git-based workflows (GitHub, Bitbucket)
-Pipeline troubleshooting, performance tuning, and release automation
-Containers & Orchestration
-Docker and Kubernetes for containerized workloads
-AWS ECS Fargate for serverless container orchestration
-Programming & Scripting
-Python (APIs, automation, Lambda)
-Bash / Shell scripting
-PowerShell (especially for Azure automation)
-Groovy (Jenkins pipelines)
-Databases & Data Systems
-MongoDB (high-availability clusters)
-DynamoDB, RDS
-Oracle, MySQL
-ETL pipeline development and optimization using AWS Glue
-Security & Identity
-IAM (roles, policies, access control)
-Okta integration for identity and access management
-Secrets management (AWS Secrets Manager)
-Vulnerability scanning (SonarQube, Veracode)
-Networking
-Strong understanding of TCP/IP, UDP, VLANs, DHCP, BGP
-Experience designing VPC/VNet architectures and implementing load balancing
-Systems & Platforms
-Linux (RHEL, CentOS, Ubuntu)
-Windows Server
-VMware / vSphere
-Data Engineering Capabilities
+Data & Engineering
 
-In addition to core DevOps expertise, I have developed strong data engineering capabilities:
+* ETL pipeline development and automation
+* AWS Glue, DynamoDB, MongoDB, RDS, Oracle, MySQL
+* API development and workflow automation
 
-Building and optimizing ETL pipelines using AWS Glue
-Working with distributed data systems (DynamoDB, RDS, MongoDB)
-Automating data workflows and improving processing efficiency
-Developing APIs for data access and integration
-AI / ML Engineering (Emerging Capability)
+Emerging AI/ML Focus
 
-Currently expanding into AI/ML-focused engineering:
+* AI/ML automation and multi-agent system development
+* Python-based AI integrations and MLOps foundations
 
-Python-based model and API development
-Automation pipelines (MLOps foundations)
-Logging and monitoring for production systems
-Building a multi-agent AI system for decision automation
 Summary
 
-My skill set combines:
+Strong combination of:
 
-Strong multi-cloud expertise (AWS + Azure)
-DevOps automation and CI/CD pipelines
-Data engineering capabilities
-Emerging AI/ML system development
+* Cloud engineering (AWS/Azure)
+* DevOps & CI/CD automation
+* Infrastructure as Code
+* Data engineering capabilities
+* AI/ML system integration
