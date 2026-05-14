@@ -1,35 +1,4 @@
-Technical Skills & Capability Overview
-
-Experienced Cloud & DevOps Engineer with strong hands-on expertise across AWS, Azure, infrastructure automation, CI/CD, and cloud operations.
-
-Core Skills
-
-* AWS & Azure cloud infrastructure and automation
-* Terraform, Ansible, CloudFormation, Packer
-* GitLab CI/CD, Jenkins, Git workflows
-* Docker, Kubernetes, AWS ECS Fargate
-* Python, Bash, PowerShell, Groovy scripting
-* Linux & Windows administration
-* IAM, Secrets Manager, security and access management
-* Networking: VPC/VNet, TCP/IP, load balancing
-
-Data & Engineering
-
-* ETL pipeline development and automation
-* AWS Glue, DynamoDB, MongoDB, RDS, Oracle, MySQL
-* API development and workflow automation
-
-Emerging AI/ML Focus
-
-* AI/ML automation and multi-agent system development
-* Python-based AI integrations and MLOps foundations
-
-Summary
-
-Strong combination of:
-
-* Cloud engineering (AWS/Azure)
-* DevOps & CI/CD automation
-* Infrastructure as Code
-* Data engineering capabilities
-* AI/ML system integration
+* AWS & Azure cloud automation
+* Terraform, Ansible, GitLab CI/CD
+* Python automation, Docker & Kubernetes
+* ETL workflows and AI/ML integrations
